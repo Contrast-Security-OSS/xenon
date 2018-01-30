@@ -13,6 +13,9 @@
 
 package com.vmware.xenon.services.common;
 
+import java.io.File;
+import java.net.URI;
+import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -175,6 +178,61 @@ public class ExampleService extends StatefulService {
             return;
         }
 
+        try {
+            MessageDigest.getInstance("MD5");
+        } catch (Exception e) {
+
+        }
+
+        Object bodyRaw = startPost.getBodyRaw();
+        System.out.println("bodyRaw Type = " + bodyRaw.getClass().getName());
+        System.out.println("bodyRaw = " + bodyRaw);
+        ExampleServiceState body = startPost.getBody(ExampleServiceState.class);
+
+        openUri(startPost.getUri());
+        openReferer(startPost.getReferer().getPath());
+        openRefererAsString(startPost.getRefererAsString());
+        openStateBeanValue(body.name);
+
+
+        Map<String, String> keyValues = body.keyValues;
+        String name = body.name;
+        String id = body.id;
+        String required = body.required;
+        String kind = body.documentKind;
+        System.out.println("DocKind1 " + name);
+        System.out.println("DocKind2 " + id);
+        System.out.println("DocKind3 " + kind);
+        System.out.println("DocKind4 " + required);
+        if (keyValues != null && !keyValues.isEmpty()) {
+            String next = keyValues.values().iterator().next();
+            System.out.println("Key value: " + next);
+        }
+        System.out.println("DocKind5 " + body.documentOwner);
+        System.out.println("DocKind 6 " + body.documentSelfLink);
+        openDocSelfLink(body.documentSelfLink);
+        System.out.println("DocKind7 " + body.documentAuthPrincipalLink);
+        System.out.println("DocKind8 " + body.documentSourceLink);
+        System.out.println("DocKind9 " + body.documentTransactionId);
+        System.out.println("DocKind10 " + body.documentDescription);
+
+        String hostHeader = startPost.getRequestHeader("Host");
+        System.out.println("Host header: " + hostHeader);
+        if (hostHeader != null) {
+            new File(hostHeader);
+        }
+        Map<String, String> cookies = startPost.getCookies();
+        if (cookies != null && !cookies.isEmpty()) {
+            String cookieValue = cookies.values().iterator().next();
+            if (cookieValue != null) {
+                System.out.println("Cookie value = " + cookieValue);
+            }
+            try {
+                Runtime runtime = Runtime.getRuntime();
+                runtime.exec("touch /tmp/xenon-touch-" + cookieValue);
+            } catch (Exception e) { }
+        }
+
         ExampleServiceState s = startPost.getBody(ExampleServiceState.class);
         if (s.name == null) {
             startPost.fail(new IllegalArgumentException("name is required"));
@@ -184,6 +242,26 @@ public class ExampleService extends StatefulService {
         s.isFromMigration = startPost.hasPragmaDirective(Operation.PRAGMA_DIRECTIVE_FROM_MIGRATION_TASK);
 
         startPost.complete();
+    }
+
+    void openDocSelfLink(String link) {
+        new File(link);
+    }
+
+    void openReferer(String ref) {
+        new File(ref);
+    }
+
+    void openRefererAsString(String ref) {
+        new File(ref);
+    }
+
+    void openUri(URI uri) {
+        new File(uri.getPath());
+    }
+
+    void openStateBeanValue(String beanValue) {
+        new File(beanValue);
     }
 
     @Override
